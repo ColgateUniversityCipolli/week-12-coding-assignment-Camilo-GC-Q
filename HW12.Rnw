@@ -49,12 +49,40 @@ alternative.
 \begin{enumerate}
   \item What values of $t_{20}$ provide statistically discernible support for the
   alternative hypothesis?
+  
+  <<echo = T, message = T, warning = F>>=
+  alpha = 0.05
+  m20 = 20
+  discernible_boundary_lower = qt(alpha/2, df = m20-1)
+  discernible_boundary_upper = qt(1-alpha/2, df = m20-1)
+  
+  discernible_boundary_lower
+  discernible_boundary_upper
+  @
+  
+  If $t_{20} > 2.093024$, then there is statistically discernible support for the alternative and we would reject the null.
+  
   \item What values of $t_{30}$ provide statistically discernible support for the
   alternative hypothesis?
+  <<echo = T, message = F, warning = F>>=
+  alpha = 0.05
+  m30 = 30
+  boundary_lower = qt(alpha/2, df = m30-1)
+  boundary_upper = qt(1-alpha/2, df = m30-1)
+  
+  boundary_lower
+  
+  boundary_upper
+  @
   \item Suppose $f_X(x)$ is a Laplace distribution with $a=0$ and $b=4.0$.
   Conduct a simulation study to assess the Type I error rate of this approach.\\
   \textbf{Note:} You can use the \texttt{rlaplace()} function from the \texttt{VGAM}
   package for \texttt{R} \citep{VGAM}.
+  <<echo = F, message = F, warning = F>>=
+  library(VGAM)
+  
+  
+  @
   \item \textbf{Optional Challenge:} Can you find a value of $\alpha<0.05$ that yields a 
   Type I error rate of 0.05?
 \end{enumerate}
