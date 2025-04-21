@@ -74,15 +74,48 @@ alternative.
   
   boundary_upper
   @
+  If $t_{30} > 2.04523$, then there is statistically discernible support for the alternative and we would reject the null.
+  
   \item Suppose $f_X(x)$ is a Laplace distribution with $a=0$ and $b=4.0$.
   Conduct a simulation study to assess the Type I error rate of this approach.\\
   \textbf{Note:} You can use the \texttt{rlaplace()} function from the \texttt{VGAM}
   package for \texttt{R} \citep{VGAM}.
-  <<echo = F, message = F, warning = F>>=
+  <<echo = T, message = F, warning = F>>=
   library(VGAM)
+  #??rlaplace
+  alpha = 0.05
+  m20 = 20
+  m30 = 30
+  t_20 = qt(1-alpha, df = m20-1)
+  t_30 = qt(1-alpha, df = m30-1)
+
+  simu_type1 = function(N = 10000, b = 4){
+    false_positives = 0
+    for (i in 1:N){
+      x = rlaplace(30, location = 0, scale = b)
+      x20 = x[1:20]
+      t20 = (mean(x20) - 0) / (sd(x20)/sqrt(20)) # Centered at 0 so mu = 0
+      
+      if (t20 > t_20){
+        false_positives = false_positives + 1
+      }
+      else {
+        t30 = (mean(x) - 0) / (sd(x)/sqrt(30))
+        if (t30 > t_30){
+          false_positives = false_positives + 1
+        }
+      }
+    }
+    return(false_positives / N)
+  }
   
+  type1_rate = simu_type1()
+  type1_rate
   
   @
+  
+  The Type I error rate for this approach is $0.0735$ or $7.35\%$
+  
   \item \textbf{Optional Challenge:} Can you find a value of $\alpha<0.05$ that yields a 
   Type I error rate of 0.05?
 \end{enumerate}
@@ -106,6 +139,34 @@ alternative.
     \item How does skewness of the underlying population distribution effect
     Type I error across the test types?
   \end{enumerate}
+  
+  <<echo = T, message = F, warning = F>>=
+  
+  t_test_errors = function(N = 10000, func, true_mean, n = 15){
+    left_error = 0
+    right_error = 0
+    two_error = 0
+    
+    for (i in 1:N){
+      x = func
+      t_stat = (mean(x) - true_mean) / (sd(x) / sqrt(n))
+      if (t_stat < qt(0.05, df = n - 1)){ # Checks the left-tailed test error rate
+        left_error = left_error + 1
+      }
+      if (t_stat > qt(0.95, df = n - 1)){
+        right_error = right_error + 1
+      }
+      if(abs(t_stat) > qt(0.975, df = n - 1)){
+        two_error = two_error + 1
+      }
+    }
+    return(c(Left-tailed = left_error/N, Right-tailed = right_error/N, Two-tailed = two_error/N))
+  }
+  
+  beta_10_2 = t_test_errors(func = function rbeta(n, 10,2), true_mean = 10/12)
+  
+  @
+  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % End Document
@@ -114,3 +175,4 @@ alternative.
 \end{enumerate}
 \bibliography{bibliography}
 \end{document}
+

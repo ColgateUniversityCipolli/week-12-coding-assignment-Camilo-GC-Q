@@ -145,11 +145,54 @@ alternative.
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
+  If $t_{30} > 2.04523$, then there is statistically discernible support for the alternative and we would reject the null.
+  
   \item Suppose $f_X(x)$ is a Laplace distribution with $a=0$ and $b=4.0$.
   Conduct a simulation study to assess the Type I error rate of this approach.\\
   \textbf{Note:} You can use the \texttt{rlaplace()} function from the \texttt{VGAM}
   package for \texttt{R} \citep{VGAM}.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hldef{(VGAM)}
+\hlcom{#??rlaplace}
+\hldef{alpha} \hlkwb{=} \hlnum{0.05}
+\hldef{m20} \hlkwb{=} \hlnum{20}
+\hldef{m30} \hlkwb{=} \hlnum{30}
+\hldef{t_20} \hlkwb{=} \hlkwd{qt}\hldef{(}\hlnum{1}\hlopt{-}\hldef{alpha,} \hlkwc{df} \hldef{= m20}\hlopt{-}\hlnum{1}\hldef{)}
+\hldef{t_30} \hlkwb{=} \hlkwd{qt}\hldef{(}\hlnum{1}\hlopt{-}\hldef{alpha,} \hlkwc{df} \hldef{= m30}\hlopt{-}\hlnum{1}\hldef{)}
 
+\hldef{simu_type1} \hlkwb{=} \hlkwa{function}\hldef{(}\hlkwc{N} \hldef{=} \hlnum{10000}\hldef{,} \hlkwc{b} \hldef{=} \hlnum{4}\hldef{)\{}
+  \hldef{false_positives} \hlkwb{=} \hlnum{0}
+  \hlkwa{for} \hldef{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hldef{N)\{}
+    \hldef{x} \hlkwb{=} \hlkwd{rlaplace}\hldef{(}\hlnum{30}\hldef{,} \hlkwc{location} \hldef{=} \hlnum{0}\hldef{,} \hlkwc{scale} \hldef{= b)}
+    \hldef{x20} \hlkwb{=} \hldef{x[}\hlnum{1}\hlopt{:}\hlnum{20}\hldef{]}
+    \hldef{t20} \hlkwb{=} \hldef{(}\hlkwd{mean}\hldef{(x20)} \hlopt{-} \hlnum{0}\hldef{)} \hlopt{/} \hldef{(}\hlkwd{sd}\hldef{(x20)}\hlopt{/}\hlkwd{sqrt}\hldef{(}\hlnum{20}\hldef{))} \hlcom{# Centered at 0 so mu = 0}
+
+    \hlkwa{if} \hldef{(t20} \hlopt{>} \hldef{t_20)\{}
+      \hldef{false_positives} \hlkwb{=} \hldef{false_positives} \hlopt{+} \hlnum{1}
+    \hldef{\}}
+    \hlkwa{else} \hldef{\{}
+      \hldef{t30} \hlkwb{=} \hldef{(}\hlkwd{mean}\hldef{(x)} \hlopt{-} \hlnum{0}\hldef{)} \hlopt{/} \hldef{(}\hlkwd{sd}\hldef{(x)}\hlopt{/}\hlkwd{sqrt}\hldef{(}\hlnum{30}\hldef{))}
+      \hlkwa{if} \hldef{(t30} \hlopt{>} \hldef{t_30)\{}
+        \hldef{false_positives} \hlkwb{=} \hldef{false_positives} \hlopt{+} \hlnum{1}
+      \hldef{\}}
+    \hldef{\}}
+  \hldef{\}}
+  \hlkwd{return}\hldef{(false_positives} \hlopt{/} \hldef{N)}
+\hldef{\}}
+
+\hldef{type1_rate} \hlkwb{=} \hlkwd{simu_type1}\hldef{()}
+\hldef{type1_rate}
+\end{alltt}
+\begin{verbatim}
+## [1] 0.0773
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+  
+  The Type I error rate for this approach is $0.0735$ or $7.35\%$
+  
   \item \textbf{Optional Challenge:} Can you find a value of $\alpha<0.05$ that yields a 
   Type I error rate of 0.05?
 \end{enumerate}
@@ -173,6 +216,38 @@ alternative.
     \item How does skewness of the underlying population distribution effect
     Type I error across the test types?
   \end{enumerate}
+  
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+t_test_errors = \hlkwd{function}(N = 10000, func, true_mean, n = 15)\{
+  left_error = 0
+  right_error = 0
+  two_error = 0
+  
+  \hlkwd{for} (i in 1:N)\{
+    x = func
+    t_stat = (\hlkwd{mean}(x) - true_mean) / (\hlkwd{sd}(x) / \hlkwd{sqrt}(n))
+    \hlkwd{if} (t_stat < \hlkwd{qt}(0.05, df = n - 1))\{ \hlcom{# Checks the left-tailed test error rate}
+      left_error = left_error + 1
+    \}
+    \hlkwd{if} (t_stat > \hlkwd{qt}(0.95, df = n - 1))\{
+      right_error = right_error + 1
+    \}
+    \hlkwd{if}(\hlkwd{abs}(t_stat) > \hlkwd{qt}(0.975, df = n - 1))\{
+      two_error = two_error + 1
+    \}
+  \}
+  \hlkwd{return}(\hlkwd{c}(Left-tailed = left_error/N, Right-tailed = right_error/N, Two-tailed = two_error/N))
+\}
+
+beta_10_2 = \hlkwd{t_test_errors}(func = function \hlkwd{rbeta}(n, 10,2), true_mean = 10/12)
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in parse(text = input): <text>:20:24: unexpected '='\\\#\# 19: \ \ \}\\\#\# 20: \ \ return(c(Left-tailed =\\\#\# \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textasciicircum{}}}\end{kframe}
+\end{knitrout}
+  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % End Document
@@ -181,3 +256,4 @@ alternative.
 \end{enumerate}
 \bibliography{bibliography}
 \end{document}
+
