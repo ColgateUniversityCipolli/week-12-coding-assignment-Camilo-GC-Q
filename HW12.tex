@@ -181,17 +181,17 @@ alternative.
   \hldef{\}}
   \hlkwd{return}\hldef{(false_positives} \hlopt{/} \hldef{N)}
 \hldef{\}}
-
+\hlkwd{set.seed}\hldef{(}\hlnum{7272}\hldef{)}
 \hldef{type1_rate} \hlkwb{=} \hlkwd{simu_type1}\hldef{()}
 \hldef{type1_rate}
 \end{alltt}
 \begin{verbatim}
-## [1] 0.0732
+## [1] 0.0763
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
   
-  The Type I error rate for this approach is $0.0735$ or $7.35\%$
+  The Type I error rate for this approach is $0.0735$ or $7.63\%$. The reason the calculated Type I error rate is larger than $\alpha$ is because by adding a check at month 20, we're unintentionally giving ourselves two chances to reject the null, which increases our likelihood of making a mistake (falsely rejecting the null). Even though both tests individually use an $\alpha = 5\%$, the overall error rate increases because we're doing multiple tests without adjusting the $\alpha$ to account for it.
   
   \item \textbf{Optional Challenge:} Can you find a value of $\alpha<0.05$ that yields a 
   Type I error rate of 0.05?
@@ -275,6 +275,8 @@ alternative.
   \item The Beta($10, 10$) distribution has near equal Type I error rates for the right-tailed and left-tailed tests at about $5\%$.
   \item The skewness of the distributions distort the Type I error rates, particularly for the one-sided tests. In contrast, two-tailed test error rates, which all remained relatively close to $6\%$, seem to produce the least distorted Type I error rates for various skewed distributions. This suggests that two-tailed tests may give more reliable Type I error rates. 
 \end{enumerate}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % End Document
