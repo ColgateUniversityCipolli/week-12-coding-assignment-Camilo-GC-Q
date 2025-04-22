@@ -148,7 +148,7 @@ alternative.
     two_error = 0
     
     for (i in 1:N){
-      x = func
+      x = func(n)
       t_stat = (mean(x) - true_mean) / (sd(x) / sqrt(n))
       if (t_stat < qt(0.05, df = n - 1)){ # Checks the left-tailed test error rate
         left_error = left_error + 1
@@ -160,13 +160,26 @@ alternative.
         two_error = two_error + 1
       }
     }
-    return(c(Left-tailed = left_error/N, Right-tailed = right_error/N, Two-tailed = two_error/N))
+    return(c("Left-tailed" = left_error/N, 
+             "Right-tailed" = right_error/N, 
+             "Two-tailed" = two_error/N))
   }
+  set.seed(1313)
+  beta_10_2 = t_test_errors(func = function(n) rbeta(n, 10,2), true_mean = 10/12)
+  beta_2_10 = t_test_errors(func = function(n) rbeta(n, 2, 10), true_mean = 2/12)  
+  beta_10_10 = t_test_errors(func = function(n) rbeta(n, 10, 10), true_mean = 10/20)
   
-  beta_10_2 = t_test_errors(func = function rbeta(n, 10,2), true_mean = 10/12)
+  beta_10_2
+  beta_2_10
+  beta_10_10
   
   @
-  
+\begin{enumerate}
+  \item For Beta($10, 2$) distribution, the right-tailed test has a higher Type I error rate of $8.04\%$, while the left-tailed test has a lower error rate of $3\%$.
+  \item The Beta($2, 10$) distribution has a right-tailed test Type I error rate of $3.18\%$ whereas the left-tailed test has an $8.31\%$ error rate.
+  \item The Beta($10, 10$) distribution has near equal Type I error rates for the right-tailed and left-tailed tests at about $5\%$.
+  \item The skewness of the distributions distort the Type I error rates, particularly for the one-sided tests. In contrast, two-tailed test error rates, which all remained relatively close to $6\%$, seem to produce the least distorted Type I error rates for various skewed distributions. This suggests that two-tailed tests may give more reliable Type I error rates. 
+\end{enumerate}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % End Document

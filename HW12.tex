@@ -186,7 +186,7 @@ alternative.
 \hldef{type1_rate}
 \end{alltt}
 \begin{verbatim}
-## [1] 0.0773
+## [1] 0.0732
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -220,34 +220,61 @@ alternative.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-t_test_errors = \hlkwd{function}(N = 10000, func, true_mean, n = 15)\{
-  left_error = 0
-  right_error = 0
-  two_error = 0
-  
-  \hlkwd{for} (i in 1:N)\{
-    x = func
-    t_stat = (\hlkwd{mean}(x) - true_mean) / (\hlkwd{sd}(x) / \hlkwd{sqrt}(n))
-    \hlkwd{if} (t_stat < \hlkwd{qt}(0.05, df = n - 1))\{ \hlcom{# Checks the left-tailed test error rate}
-      left_error = left_error + 1
-    \}
-    \hlkwd{if} (t_stat > \hlkwd{qt}(0.95, df = n - 1))\{
-      right_error = right_error + 1
-    \}
-    \hlkwd{if}(\hlkwd{abs}(t_stat) > \hlkwd{qt}(0.975, df = n - 1))\{
-      two_error = two_error + 1
-    \}
-  \}
-  \hlkwd{return}(\hlkwd{c}(Left-tailed = left_error/N, Right-tailed = right_error/N, Two-tailed = two_error/N))
-\}
+\hldef{t_test_errors} \hlkwb{=} \hlkwa{function}\hldef{(}\hlkwc{N} \hldef{=} \hlnum{10000}\hldef{,} \hlkwc{func}\hldef{,} \hlkwc{true_mean}\hldef{,} \hlkwc{n} \hldef{=} \hlnum{15}\hldef{)\{}
+  \hldef{left_error} \hlkwb{=} \hlnum{0}
+  \hldef{right_error} \hlkwb{=} \hlnum{0}
+  \hldef{two_error} \hlkwb{=} \hlnum{0}
 
-beta_10_2 = \hlkwd{t_test_errors}(func = function \hlkwd{rbeta}(n, 10,2), true_mean = 10/12)
+  \hlkwa{for} \hldef{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hldef{N)\{}
+    \hldef{x} \hlkwb{=} \hlkwd{func}\hldef{(n)}
+    \hldef{t_stat} \hlkwb{=} \hldef{(}\hlkwd{mean}\hldef{(x)} \hlopt{-} \hldef{true_mean)} \hlopt{/} \hldef{(}\hlkwd{sd}\hldef{(x)} \hlopt{/} \hlkwd{sqrt}\hldef{(n))}
+    \hlkwa{if} \hldef{(t_stat} \hlopt{<} \hlkwd{qt}\hldef{(}\hlnum{0.05}\hldef{,} \hlkwc{df} \hldef{= n} \hlopt{-} \hlnum{1}\hldef{))\{} \hlcom{# Checks the left-tailed test error rate}
+      \hldef{left_error} \hlkwb{=} \hldef{left_error} \hlopt{+} \hlnum{1}
+    \hldef{\}}
+    \hlkwa{if} \hldef{(t_stat} \hlopt{>} \hlkwd{qt}\hldef{(}\hlnum{0.95}\hldef{,} \hlkwc{df} \hldef{= n} \hlopt{-} \hlnum{1}\hldef{))\{}
+      \hldef{right_error} \hlkwb{=} \hldef{right_error} \hlopt{+} \hlnum{1}
+    \hldef{\}}
+    \hlkwa{if}\hldef{(}\hlkwd{abs}\hldef{(t_stat)} \hlopt{>} \hlkwd{qt}\hldef{(}\hlnum{0.975}\hldef{,} \hlkwc{df} \hldef{= n} \hlopt{-} \hlnum{1}\hldef{))\{}
+      \hldef{two_error} \hlkwb{=} \hldef{two_error} \hlopt{+} \hlnum{1}
+    \hldef{\}}
+  \hldef{\}}
+  \hlkwd{return}\hldef{(}\hlkwd{c}\hldef{(}\hlsng{"Left-tailed"} \hldef{= left_error}\hlopt{/}\hldef{N,}
+           \hlsng{"Right-tailed"} \hldef{= right_error}\hlopt{/}\hldef{N,}
+           \hlsng{"Two-tailed"} \hldef{= two_error}\hlopt{/}\hldef{N))}
+\hldef{\}}
+\hlkwd{set.seed}\hldef{(}\hlnum{1313}\hldef{)}
+\hldef{beta_10_2} \hlkwb{=} \hlkwd{t_test_errors}\hldef{(}\hlkwc{func} \hldef{=} \hlkwa{function}\hldef{(}\hlkwc{n}\hldef{)} \hlkwd{rbeta}\hldef{(n,} \hlnum{10}\hldef{,}\hlnum{2}\hldef{),} \hlkwc{true_mean} \hldef{=} \hlnum{10}\hlopt{/}\hlnum{12}\hldef{)}
+\hldef{beta_2_10} \hlkwb{=} \hlkwd{t_test_errors}\hldef{(}\hlkwc{func} \hldef{=} \hlkwa{function}\hldef{(}\hlkwc{n}\hldef{)} \hlkwd{rbeta}\hldef{(n,} \hlnum{2}\hldef{,} \hlnum{10}\hldef{),} \hlkwc{true_mean} \hldef{=} \hlnum{2}\hlopt{/}\hlnum{12}\hldef{)}
+\hldef{beta_10_10} \hlkwb{=} \hlkwd{t_test_errors}\hldef{(}\hlkwc{func} \hldef{=} \hlkwa{function}\hldef{(}\hlkwc{n}\hldef{)} \hlkwd{rbeta}\hldef{(n,} \hlnum{10}\hldef{,} \hlnum{10}\hldef{),} \hlkwc{true_mean} \hldef{=} \hlnum{10}\hlopt{/}\hlnum{20}\hldef{)}
+
+\hldef{beta_10_2}
 \end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in parse(text = input): <text>:20:24: unexpected '='\\\#\# 19: \ \ \}\\\#\# 20: \ \ return(c(Left-tailed =\\\#\# \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textasciicircum{}}}\end{kframe}
+\begin{verbatim}
+##  Left-tailed Right-tailed   Two-tailed 
+##       0.0300       0.0804       0.0619
+\end{verbatim}
+\begin{alltt}
+\hldef{beta_2_10}
+\end{alltt}
+\begin{verbatim}
+##  Left-tailed Right-tailed   Two-tailed 
+##       0.0831       0.0318       0.0624
+\end{verbatim}
+\begin{alltt}
+\hldef{beta_10_10}
+\end{alltt}
+\begin{verbatim}
+##  Left-tailed Right-tailed   Two-tailed 
+##       0.0506       0.0532       0.0518
+\end{verbatim}
+\end{kframe}
 \end{knitrout}
-  
+\begin{enumerate}
+  \item For Beta($10, 2$) distribution, the right-tailed test has a higher Type I error rate of $8.04\%$, while the left-tailed test has a lower error rate of $3\%$.
+  \item The Beta($2, 10$) distribution has a right-tailed test Type I error rate of $3.18\%$ whereas the left-tailed test has an $8.31\%$ error rate.
+  \item The Beta($10, 10$) distribution has near equal Type I error rates for the right-tailed and left-tailed tests at about $5\%$.
+  \item The skewness of the distributions distort the Type I error rates, particularly for the one-sided tests. In contrast, two-tailed test error rates, which all remained relatively close to $6\%$, seem to produce the least distorted Type I error rates for various skewed distributions. This suggests that two-tailed tests may give more reliable Type I error rates. 
+\end{enumerate}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % End Document
